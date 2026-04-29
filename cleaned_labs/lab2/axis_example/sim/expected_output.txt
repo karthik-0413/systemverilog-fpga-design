@@ -1,0 +1,134 @@
+`timescale 1ns / 1ps
+
+//////////////////////////////////////////////////////////////////////////////////
+// Module: fir_filter_parallel.sv
+// Description: Fully parallel 64-tap FIR filter with coefficients
+    // tap = each coefficient being mulitpied by an input signal value
+//////////////////////////////////////////////////////////////////////////////////
+
+// Notes:
+    // AXI-Stream:
+        // Data only goes out when TVALID and TREADY are both high
+        // Reduce data loss
+    
+
+module fir_filter_parallel (
+    input  logic        aclk,           // Everything happens on rising edge of aclk
+    input  logic        aresetn,        // 0 -> reset, 1 -> normal operation
+    // *** Mode Select ***  
+    input  logic        stream_load_coeff_en,    // 1 -> Coeffs loading, 0 -> Filtering
+    // *** AXIS slave port ***
+    output logic        s_axis_tready,  // "I am ready to get data"
+    input  logic [31:0] s_axis_tdata,   // The data coming in
+    input  logic        s_axis_tvalid,  // "The data coming in is valid"
+    input  logic        s_axis_tlast,   // "This is the last data"
+    // *** AXIS master port ***
+    input  logic        m_axis_tready,  // "I am ready to get data"
+    output logic [31:0] m_axis_tdata,   // The filtered data going out
+    output logic        m_axis_tvalid,  // "The filtered data going out is valid"
+    output logic        m_axis_tlast    // "This is the last output data"
+);
+
+    //==========================================================================
+    // Internal Signals
+    //==========================================================================
+
+    // Coeffs Storage
+    logic signed [31:0] coeffs [0:63];   // 64 coefficients (Each 32 bits)
+    logic signed [31:0] data [0:63];     // 64 input data samples (Each 32 bits)
+    logic signed [63:0] summie;            // Sum of all 64 Products (Tap outputs)  
+    logic signed [63:0] products [0:63]; // Products of input samples and coeffs
+
+    // Sample counters
+    logic [9:0] counter;
+
+    // Output control signal
+    logic send_last;
+
+    // Loop Iteration Variable 
+    // SOMETHING LEARNED:
+        // You cannot use the var 'i' for ff and comb at the same time, since they are different processes.
+        // You have to use a different var for each process (i for ff and j for comb for example)
+    integer i;
+    genvar j;
+    integer k;
+
+    //==========================================================================
+    // AXI Stream Ready Logic
+    //==========================================================================
+
+    assign s_axis_tready = 1'b1; // Ready to receive data
+
+    //==========================================================================
+    // Start of Actual Logic
+    //==========================================================================
+
+    always_ff @(posedge aclk) begin
+        if (!aresetn) begin
+            // Reset all variables back to default value
+            counter <= 0;
+            send_last <= 0;
+            for (i = 0; i < 64; i++) begin
+                coeffs[i] <= 0;
+                data[i] <= 0;
+            end
+        end
+        else if (s_axis_tvalid && s_axis_tready) begin
+            if (stream_load_coeff_en) begin
+                // Coefficients loading mode (Shifting 32 bit registers)
+                for (i = 0; i < 63; i = i + 1) begin
+                    coeffs[i] <= coeffs[i+1];
+                end
+                coeffs[63] <= s_axis_tdata;   // Don't forgot the LSB coeff
+
+                // Reset all counters as well
+                counter <= 0;
+                send_last <= 1'b0;
+            end else begin
+                // Filtering Mode (Shifting 32 bit registers)
+                for (i = 0; i < 63; i = i + 1) begin  // 0 to 62, incrementing
+                    data[i] <= data[i+1];              // Shift left
+                end
+                data[63] <= s_axis_tdata;              // New data at [63]
+
+                // Increment sample counter
+                counter <= counter + 1;
+
+                // Assert TLAST on the AXI-Stream output interface when the last valid sample is produced
+                if (counter - 63 == 936) begin
+                    send_last <= 1'b1;
+                end else begin
+                    send_last <= 1'b0;
+                end
+            end
+        end
+    end
+
+    //==========================================================================
+    // Multiplcation (Got from Lab 1 adder_16bit.sv file)
+    //==========================================================================
+    generate
+        for (j = 0; j < 64; j = j + 1) begin: gen_multiplication
+            assign products[j] = coeffs[j] * data[j];
+        end
+    endgenerate
+
+    //==========================================================================
+    // Addition
+    //==========================================================================
+    always_comb begin
+        summie = 0;
+        for (k = 0; k < 64; k++) begin
+            summie = summie + products[k];
+        end
+    end
+
+    //==========================================================================
+    // AXI Stream Master Output
+    //==========================================================================
+    
+    assign m_axis_tdata = summie[31:0];
+    assign m_axis_tvalid = counter >= 63 && stream_load_coeff_en == 0;
+    assign m_axis_tlast = send_last && m_axis_tvalid;
+
+endmodule

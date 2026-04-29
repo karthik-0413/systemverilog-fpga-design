@@ -1,0 +1,35 @@
+// Input data file for pipelined adder testbench
+// 32 random 16-bit values (hex format)
+// These will be placed in the lower 16 bits of the 32-bit AXI Stream data bus
+0001
+1234
+ABCD
+FFFF
+8000
+7FFF
+0000
+5555
+AAAA
+3FFF
+C000
+1111
+2222
+3333
+4444
+5555
+6666
+7777
+8888
+9999
+AAAA
+BBBB
+CCCC
+DDDD
+EEEE
+FFFF
+1000
+2000
+3000
+4000
+5000
+6000

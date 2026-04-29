@@ -1,0 +1,56 @@
+# Vivado / Xilinx auto-generated
+.Xil/
+.cache/
+*.cache/
+.runs/
+*.runs/
+.sim/
+*.sim/
+.hw/
+*.hw/
+.gen/
+*.gen/
+.srcs/
+*.srcs/
+ip_user_files/
+*.ip_user_files/
+export/
+.ipynb_checkpoints/
+
+# Vivado project / bitstream artifacts
+*.xpr
+*.bit
+*.bin
+*.ltx
+*.dcp
+*.wcfg
+*.wdb
+*.wdf
+*.dpt
+*.pb
+*.jou
+*.log
+*.str
+
+# Vivado HLS / Vitis HLS auto-generated
+solution1/
+.syn/
+.impl/
+component_*/
+proj_*/
+
+# Simulator caches & outputs
+xsim.dir/
+*.vcd
+*.fst
+*_full.mem
+
+# Editor / OS
+.DS_Store
+*.swp
+*.bak
+__pycache__/
+*.pyc
+
+# NFS lock files
+.nfs*

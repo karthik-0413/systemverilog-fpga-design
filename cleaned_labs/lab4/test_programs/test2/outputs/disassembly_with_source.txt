@@ -1,0 +1,46 @@
+
+outputs/program.elf:     file format elf32-littleriscv
+
+
+Disassembly of section .text:
+
+00000000 <_start>:
+   0:	24000113          	li	sp,576
+   4:	04000513          	li	a0,64
+   8:	04000593          	li	a1,64
+   c:	00b50863          	beq	a0,a1,1c <bss_done>
+
+00000010 <bss_loop>:
+  10:	00052023          	sw	zero,0(a0)
+  14:	00450513          	add	a0,a0,4
+  18:	feb54ce3          	blt	a0,a1,10 <bss_loop>
+
+0000001c <bss_done>:
+  1c:	010000ef          	jal	2c <main>
+
+00000020 <hang>:
+  20:	0000006f          	j	20 <hang>
+
+00000024 <summie>:
+
+// Testing JALR
+int summie(int a, int b) {
+    return a + b;
+}
+  24:	00b50533          	add	a0,a0,a1
+  28:	00008067          	ret
+
+0000002c <main>:
+    int temp_arr[4] = {1, 2, 3, 4};
+    final_result = final_result + temp_arr[0] + temp_arr[1] + temp_arr[2] + temp_arr[3]; // Updated final_result = 130553
+
+    // Store final result
+    int *ptr = (int *)(4096 - 4);
+    *ptr = final_result;
+  2c:	000017b7          	lui	a5,0x1
+  30:	00020737          	lui	a4,0x20
+  34:	df970713          	add	a4,a4,-519 # 1fdf9 <_memory_end+0x1edf9>
+  38:	fee7ae23          	sw	a4,-4(a5) # ffc <__stack_top+0xdbc>
+
+    while(1);
+  3c:	0000006f          	j	3c <main+0x10>

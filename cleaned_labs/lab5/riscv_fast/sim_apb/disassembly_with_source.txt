@@ -1,0 +1,107 @@
+
+outputs/program.elf:     file format elf32-littleriscv
+
+
+Disassembly of section .text:
+
+00000000 <_start>:
+   0:	2d400113          	li	sp,724
+   4:	0d400513          	li	a0,212
+   8:	0d400593          	li	a1,212
+   c:	00b50863          	beq	a0,a1,1c <bss_done>
+
+00000010 <bss_loop>:
+  10:	00052023          	sw	zero,0(a0)
+  14:	00450513          	add	a0,a0,4
+  18:	feb54ce3          	blt	a0,a1,10 <bss_loop>
+
+0000001c <bss_done>:
+  1c:	008000ef          	jal	24 <main>
+
+00000020 <hang>:
+  20:	0000006f          	j	20 <hang>
+
+00000024 <main>:
+    unsigned int status;
+    unsigned int gpio0_value;
+
+    
+    // Write GPIO0 ias 7
+    REG32(APB_GPIO0_BASE) = 0x07u;
+  24:	000407b7          	lui	a5,0x40
+  28:	00700713          	li	a4,7
+  2c:	00e7a023          	sw	a4,0(a5) # 40000 <_memory_end+0x3f000>
+
+    /* Run the timer once to 8, then restart it and run to 16. */
+    REG32(TIMER_LIMIT) = 8u;
+  30:	00800713          	li	a4,8
+  34:	10e7a423          	sw	a4,264(a5)
+    REG32(TIMER_CTRL) = TIMER_CTRL_RESET;
+  38:	000407b7          	lui	a5,0x40
+  3c:	00100713          	li	a4,1
+  40:	10e7a623          	sw	a4,268(a5) # 4010c <_memory_end+0x3f10c>
+    REG32(TIMER_CTRL) = TIMER_CTRL_ENABLE;
+  44:	00200713          	li	a4,2
+  48:	10e7a623          	sw	a4,268(a5)
+
+    do {
+        status = REG32(TIMER_STATUS);
+  4c:	000406b7          	lui	a3,0x40
+  50:	11068693          	add	a3,a3,272 # 40110 <_memory_end+0x3f110>
+        (void)REG32(TIMER_COUNTER);
+  54:	00040737          	lui	a4,0x40
+  58:	10470713          	add	a4,a4,260 # 40104 <_memory_end+0x3f104>
+        status = REG32(TIMER_STATUS);
+  5c:	0006a783          	lw	a5,0(a3)
+        (void)REG32(TIMER_COUNTER);
+  60:	00072603          	lw	a2,0(a4)
+    } while ((status & TIMER_STATUS_DONE) == 0u);
+  64:	0027f793          	and	a5,a5,2
+  68:	fe078ae3          	beqz	a5,5c <main+0x38>
+
+    REG32(TIMER_LIMIT) = 16u;
+  6c:	000407b7          	lui	a5,0x40
+  70:	01000713          	li	a4,16
+  74:	10e7a423          	sw	a4,264(a5) # 40108 <_memory_end+0x3f108>
+    REG32(TIMER_CTRL) = TIMER_CTRL_RESET;
+  78:	000407b7          	lui	a5,0x40
+  7c:	00100713          	li	a4,1
+  80:	10e7a623          	sw	a4,268(a5) # 4010c <_memory_end+0x3f10c>
+    REG32(TIMER_CTRL) = TIMER_CTRL_ENABLE;
+  84:	00200713          	li	a4,2
+  88:	10e7a623          	sw	a4,268(a5)
+
+    do {
+        status = REG32(TIMER_STATUS);
+  8c:	000406b7          	lui	a3,0x40
+  90:	11068693          	add	a3,a3,272 # 40110 <_memory_end+0x3f110>
+        (void)REG32(TIMER_COUNTER);
+  94:	00040737          	lui	a4,0x40
+  98:	10470713          	add	a4,a4,260 # 40104 <_memory_end+0x3f104>
+        status = REG32(TIMER_STATUS);
+  9c:	0006a783          	lw	a5,0(a3)
+        (void)REG32(TIMER_COUNTER);
+  a0:	00072603          	lw	a2,0(a4)
+    } while ((status & TIMER_STATUS_DONE) == 0u);
+  a4:	0027f793          	and	a5,a5,2
+  a8:	fe078ae3          	beqz	a5,9c <main+0x78>
+
+    /* Loop GPIO0 output back from the sampled input value at the end. */
+    REG32(APB_GPIO0_BASE) = 0x5Au;
+  ac:	000407b7          	lui	a5,0x40
+  b0:	05a00713          	li	a4,90
+  b4:	00e7a023          	sw	a4,0(a5) # 40000 <_memory_end+0x3f000>
+    gpio0_value = REG32(APB_GPIO0_BASE);
+  b8:	0007a703          	lw	a4,0(a5)
+    REG32(APB_GPIO0_BASE) = gpio0_value;
+  bc:	00e7a023          	sw	a4,0(a5)
+
+    /* Tell the testbench the program reached the end of the sequence. */
+    REG32(BRAM_END_ADDR) = 0xC0FFEEu;
+  c0:	000017b7          	lui	a5,0x1
+  c4:	00c10737          	lui	a4,0xc10
+  c8:	fee70713          	add	a4,a4,-18 # c0ffee <_memory_end+0xc0efee>
+  cc:	fee7ae23          	sw	a4,-4(a5) # ffc <__stack_top+0xd28>
+
+    while (1) {
+  d0:	0000006f          	j	d0 <main+0xac>

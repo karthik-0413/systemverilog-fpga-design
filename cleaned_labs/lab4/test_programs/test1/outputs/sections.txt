@@ -1,0 +1,66 @@
+There are 20 section headers, starting at offset 0x1790:
+
+Section Headers:
+  [Nr] Name              Type            Addr     Off    Size   ES Flg Lk Inf Al
+  [ 0]                   NULL            00000000 000000 000000 00      0   0  0
+  [ 1] .text             PROGBITS        00000000 001000 000050 00  AX  0   0  4
+  [ 2] .rodata           PROGBITS        00000050 001050 000000 00  WA  0   0  1
+  [ 3] .data             PROGBITS        00000050 001050 000000 00  WA  0   0  1
+  [ 4] .bss              NOBITS          00000050 001050 000000 00  WA  0   0  1
+  [ 5] .sbss             NOBITS          00000050 001050 00000c 00  WA  0   0  4
+  [ 6] .stack            NOBITS          0000005c 001050 000200 00  WA  0   0  1
+  [ 7] .debug_info       PROGBITS        00000000 001050 0000d1 00      0   0  1
+  [ 8] .debug_abbrev     PROGBITS        00000000 001121 0000bc 00      0   0  1
+  [ 9] .debug_loclists   PROGBITS        00000000 0011dd 000020 00      0   0  1
+  [10] .debug_aranges    PROGBITS        00000000 0011fd 000020 00      0   0  1
+  [11] .debug_line       PROGBITS        00000000 00121d 0000c6 00      0   0  1
+  [12] .debug_str        PROGBITS        00000000 0012e3 00008e 01  MS  0   0  1
+  [13] .debug_line_str   PROGBITS        00000000 001371 000049 01  MS  0   0  1
+  [14] .comment          PROGBITS        00000000 0013ba 00000f 01  MS  0   0  1
+  [15] .riscv.attributes RISCV_ATTRIBUTE 00000000 0013c9 00001c 00      0   0  1
+  [16] .debug_frame      PROGBITS        00000000 0013e8 000030 00      0   0  4
+  [17] .symtab           SYMTAB          00000000 001418 000230 10     18  24  4
+  [18] .strtab           STRTAB          00000000 001648 00007e 00      0   0  1
+  [19] .shstrtab         STRTAB          00000000 0016c6 0000c9 00      0   0  1
+Key to Flags:
+  W (write), A (alloc), X (execute), M (merge), S (strings), I (info),
+  L (link order), O (extra OS processing required), G (group), T (TLS),
+  C (compressed), x (unknown), o (OS specific), E (exclude),
+  D (mbind), p (processor specific)
+
+outputs/program.elf:     file format elf32-littleriscv
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         00000050  00000000  00000000  00001000  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .rodata       00000000  00000050  00000050  00001050  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .data         00000000  00000050  00000050  00001050  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  3 .bss          00000000  00000050  00000050  00001050  2**0
+                  ALLOC
+  4 .sbss         0000000c  00000050  00000050  00001050  2**2
+                  ALLOC
+  5 .stack        00000200  0000005c  0000005c  00001050  2**0
+                  ALLOC
+  6 .debug_info   000000d1  00000000  00000000  00001050  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+  7 .debug_abbrev 000000bc  00000000  00000000  00001121  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+  8 .debug_loclists 00000020  00000000  00000000  000011dd  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+  9 .debug_aranges 00000020  00000000  00000000  000011fd  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 10 .debug_line   000000c6  00000000  00000000  0000121d  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 11 .debug_str    0000008e  00000000  00000000  000012e3  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 12 .debug_line_str 00000049  00000000  00000000  00001371  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 13 .comment      0000000f  00000000  00000000  000013ba  2**0
+                  CONTENTS, READONLY
+ 14 .riscv.attributes 0000001c  00000000  00000000  000013c9  2**0
+                  CONTENTS, READONLY
+ 15 .debug_frame  00000030  00000000  00000000  000013e8  2**2
+                  CONTENTS, READONLY, DEBUGGING, OCTETS

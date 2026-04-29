@@ -1,0 +1,54 @@
+
+outputs/program.elf:     file format elf32-littleriscv
+
+
+Disassembly of section .text:
+
+00000000 <_start>:
+   0:	24800113          	li	sp,584
+   4:	04400513          	li	a0,68
+   8:	04400593          	li	a1,68
+   c:	00b50863          	beq	a0,a1,1c <bss_done>
+
+00000010 <bss_loop>:
+  10:	00052023          	sw	zero,0(a0)
+  14:	00450513          	add	a0,a0,4
+  18:	feb54ce3          	blt	a0,a1,10 <bss_loop>
+
+0000001c <bss_done>:
+  1c:	018000ef          	jal	34 <main>
+
+00000020 <hang>:
+  20:	0000006f          	j	20 <hang>
+
+00000024 <add_func>:
+int result;
+
+// Test JALR by calling through function pointer
+int add_func(int a, int b) {
+    return a + b;
+}
+  24:	00b50533          	add	a0,a0,a1
+  28:	00008067          	ret
+
+0000002c <sub_func>:
+
+int sub_func(int a, int b) {
+    return a - b;
+}
+  2c:	40b50533          	sub	a0,a0,a1
+  30:	00008067          	ret
+
+00000034 <main>:
+        acc = acc + 100;  // taken, acc = 700
+    }
+
+    // Store final result
+    int *ptr = (int *)(4096 - 4);
+    *ptr = acc;
+  34:	000017b7          	lui	a5,0x1
+  38:	2bc00713          	li	a4,700
+  3c:	fee7ae23          	sw	a4,-4(a5) # ffc <__stack_top+0xdb4>
+
+    while(1);
+  40:	0000006f          	j	40 <main+0xc>
